@@ -1,0 +1,35 @@
+select product.pname,invoice_item.quantity from product inner join invoice_item on product.pid=invoice_item.pid;
++--------+----------+
+| pname  | quantity |
++--------+----------+
+| pen    |      500 |
+| pencil |      250 |
+| book   |      350 |
++--------+----------+
+3 rows in set (0.01 sec)
+
+ select customer.name,product.pname,inv_master.inv_id,inv_master.inv_date from customer left join inv_master on customer.id=inv_master.id left joi
+n invoice_item on inv_master.inv_id=invoice_item.inv_id left join product on product.pid=invoice_item.pid;
++-------+--------+--------+------------+
+| name  | pname  | inv_id | inv_date   |
++-------+--------+--------+------------+
+| sneha | pen    |     41 | 2020-02-21 |
+| maria | pencil |     42 | 2020-02-21 |
+| nika  | book   |     43 | 2025-07-24 |
++-------+--------+--------+------------+
+3 rows in set (0.00 sec)
+
+select customer.name,product.pname,product.price,inv_master.inv_id,inv_master.inv_date,invoice_item.quantity from customer inner join inv_master
+on customer.id=inv_master.id inner join invoice_item on inv_master.inv_id=invoice_item.inv_id inner join product on product.pid=invoice_item.pid=invoice_item.pid where inv_date='2020-02-21';
+Empty set (0.00 sec)
+
+ select product.pname,invoice_item.quantity from product inner join invoice_item on product.pid=invoice_item.pid;
++--------+----------+
+| pname  | quantity |
++--------+----------+
+| pen    |      500 |
+| pencil |      250 |
+| book   |      350 |
++--------+----------+
+3 rows in set (0.01 sec)
+
