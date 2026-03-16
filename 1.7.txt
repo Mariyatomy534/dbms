@@ -1,0 +1,83 @@
+mca@MCA18:~$ sudo mysql
+[sudo] password for mca: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.45-0ubuntu0.24.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2026, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use mca;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> select * from product;
++-----+--------+-------+
+| pid | pname  | price |
++-----+--------+-------+
+|  21 | pen    |   102 |
+|  22 | pencil |   306 |
+|  23 | book   |   158 |
++-----+--------+-------+
+3 rows in set (0.01 sec)
+
+mysql> select pname,price from product where pname!='pencil' order by price;
++-------+-------+
+| pname | price |
++-------+-------+
+| pen   |   102 |
+| book  |   158 |
++-------+-------+
+2 rows in set (0.00 sec)
+
+mysql> select min?(price),avg(price) from product;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '?(price),avg(price) from product' at line 1
+mysql> select min(price),avg(price) from product;
++------------+------------+
+| min(price) | avg(price) |
++------------+------------+
+|        102 |   188.6667 |
++------------+------------+
+1 row in set (0.01 sec)
+
+mysql> select min(price),max(price),avg(price) from product;
++------------+------------+------------+
+| min(price) | max(price) | avg(price) |
++------------+------------+------------+
+|        102 |        306 |   188.6667 |
++------------+------------+------------+
+1 row in set (0.00 sec)
+
+mysql> select city,count(id ) from customer group by city;
++-----------+------------+
+| city      | count(id ) |
++-----------+------------+
+| kochi     |          2 |
+| kozhicode |          1 |
++-----------+------------+
+2 rows in set (0.01 sec)
+
+mysql> select count(*),city from customer group by city having count(*)>1;
++----------+-------+
+| count(*) | city  |
++----------+-------+
+|        2 | kochi |
++----------+-------+
+1 row in set (0.00 sec)
+
+select concat(name,' lives in ',city)as cust_info from customer;
++-------------------------+
+| cust_info               |
++-------------------------+
+| sneha lives in kochi    |
+| maria lives in kochi    |
+| nika lives in kozhicode |
++-------------------------+
+3 rows in set (0.00 sec)
+
