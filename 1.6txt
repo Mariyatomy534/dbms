@@ -1,0 +1,143 @@
+mca@MCA18:~$ sudo mysql
+[sudo] password for mca: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.45-0ubuntu0.24.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2026, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use mca;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> select * name invoice_master;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'name invoice_master' at line 1
+mysql> select * name inv_master;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'name inv_master' at line 1
+mysql> select *  inv_master;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'inv_master' at line 1
+mysql> select * from inv_master;
++--------+------+------------+
+| inv_id | id   | inv_date   |
++--------+------+------------+
+|     41 |   31 | 2020-02-21 |
+|     42 |   32 | 2020-02-21 |
+|     43 |   33 | 2025-07-24 |
++--------+------+------------+
+3 rows in set (0.01 sec)
+
+mysql> select name from customer where id in(select inv_id from inv_master);
+Empty set (0.01 sec)
+
+mysql> select name from customer where id in(select inv_id from inv_master where inv_date=2020-02-21;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 1
+mysql> select name from customer where id in(select inv_id from inv_master where inv_date='2020-02-21';
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 1
+mysql> select name from customer where id in(select id from inv_master where inv_date='2020-02-21';
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 1
+mysql> select name from customer where id in(select id from inv_master where inv_date='2020-02-21');
++-------+
+| name  |
++-------+
+| sneha |
+| maria |
++-------+
+2 rows in set (0.00 sec)
+
+mysql> select pname,price from product where pid in(select pid from invoice_item);
++--------+-------+
+| pname  | price |
++--------+-------+
+| pen    |   102 |
+| pencil |   306 |
+| book   |   158 |
++--------+-------+
+3 rows in set (0.01 sec)
+
+mysql> select pname from product where pid in(select pid from invoice_item where quantity>20);
++--------+
+| pname  |
++--------+
+| pen    |
+| pencil |
+| book   |
++--------+
+3 rows in set (0.00 sec)
+
+mysql> select  * from product where pid not in(select pid from invoice_item);
+Empty set (0.00 sec)
+
+mysql> select * from product where pid not in(select pid from invoice_item);
+Empty set (0.00 sec)
+
+mysql> select name from customer where id in(select id from inv_master where inv_id in (select inv_id from invoice_item where pid in(select pid from product where pname='pen or 'pencil');
+    '> ^C
+mysql> select name from customer where id in(select id from inv_master where inv_id in (select inv_id from invoice_item where pid in(select pid from product where pname='pen or pname='pencil')));
+    '> 
+    '> ^C
+mysql> select name from customer where id in(select id from inv_master where inv_id in (select inv_id from invoice_item where pid in(select pid from product where pname='pen or pname='pencil')));
+    '> ^C
+mysql> select * from product where pid in(select pid from invoice_item where inv_id in(select  inv_id from inv_master where id in(select id from customer where name='maria')));
++-----+--------+-------+
+| pid | pname  | price |
++-----+--------+-------+
+|  22 | pencil |   306 |
++-----+--------+-------+
+1 row in set (0.00 sec)
+
+mysql> select name from customer where id in(select id from inv_master where inv_id in (select inv_id from invoice_item where pid in(select pid from product where pname='pen' or pname='pencil')));
++-------+
+| name  |
++-------+
+| sneha |
+| maria |
++-------+
+2 rows in set (0.00 sec)
+
+mysql> select distinct name from customer where id in(select id from inv_master where inv_id in (select inv_id from invoice_item group by inv_id having
+count(*)>1));
+Empty set (0.01 sec)
+
+mysql> create view ai as select * from customer wher id in (select id from inv_master);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'id in (select id from inv_master)' at line 1
+mysql> create view ai as select * from customer where id in(select id from inv_master);
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> select * from ai;
++----+-------+--------------+-----------+-----------+
+| id | name  | address      | city      | ph_no     |
++----+-------+--------------+-----------+-----------+
+| 31 | sneha | jew town     | kochi     | 998721124 |
+| 32 | maria | happy street | kochi     | 998776543 |
+| 33 | nika  | lightstreet  | kozhicode | 996565341 |
++----+-------+--------------+-----------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> create view invoice_product as select customer.name,inv_master,inv_id,product.pid,invoice_item.quantity from customer inner join inv_master on customer.id=inv_master.id inner join invoice_item on inv_master.inv_id=invoice_item.inv_id inner join product on product.pid=invoice_item.pid;
+ERROR 1054 (42S22): Unknown column 'inv_master' in 'field list'
+mysql> create view invoice_product as select customer.name,invoice_master,inv_id,product.pid,invoice_item.quantity from customer inner join invoice_mast
+er on customer.id=invoice_master.id inner join invoice_item on invoice_master.inv_id=invoice_item.inv_id inner join product on product.pid=invoice_item.
+pid;
+ERROR 1146 (42S02): Table 'mca.invoice_master' doesn't exist
+mysql> create view invoice_product as select customer.name,inv_master,inv_id,product.pid,invoice_item.quantity from customer inner join inv_master on customer.id=inv_master.id inner join invoice_item on inv_master.inv_id=invoice_item.inv_id inner join product on product.pid=invoice_item.pid;
+ERROR 1054 (42S22): Unknown column 'inv_master' in 'field list'
+mysql> create view invoice_product as select customer.name,inv_master.inv_id,product.pid,invoice_item.quantity from customer inner join inv_master on customer.id=inv_master.id inner join invoice_item on inv_master.inv_id=invoice_item.inv_id inner join product on product.pid=invoice_item.pid;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> select * from invoice_product;
++-------+--------+-----+----------+
+| name  | inv_id | pid | quantity |
++-------+--------+-----+----------+
+| sneha |     41 |  21 |      500 |
+| maria |     42 |  22 |      250 |
+| nika  |     43 |  23 |      350 |
++-------+--------+-----+----------+
+3 rows in set (0.00 sec)
+
